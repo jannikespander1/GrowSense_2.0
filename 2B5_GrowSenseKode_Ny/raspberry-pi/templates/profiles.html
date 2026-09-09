@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block title %}Planteprofiler{% endblock %}
+
+{% block content %}
+<h2>Planteprofiler</h2>
+<p class="text-muted">Vælg en profil for hver plante - de kører nu uafhængigt af hinanden.</p>
+
+<form method="POST">
+    <div class="row align-items-stretch">
+        {% for key, profil in profiler.items() %}
+        <div class="col-md-3 col-sm-6">
+            <div class="card mb-3 h-100 {% if key == aktiv_plante1 or key == aktiv_plante2 %}border-success border-2{% endif %}">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ profil.navn }}</h5>
+
+                    {% if key == aktiv_plante1 %}
+                        <span class="badge bg-success mb-1">Aktiv &ndash; Plante 1</span>
+                    {% endif %}
+                    {% if key == aktiv_plante2 %}
+                        <span class="badge bg-info mb-1">Aktiv &ndash; Plante 2</span>
+                    {% endif %}
+
+                    <p class="card-text text-muted small">{{ profil.beskrivelse }}</p>
+                    <table class="table table-sm table-borderless mb-2">
+                        <tbody>
+                            <tr><td>Jordfugtighed</td><td>{{ profil.soil_min }}&ndash;{{ profil.soil_max }}%</td></tr>
+                            <tr><td>Lys timer/dag</td><td>{{ profil.lys_timer }} t</td></tr>
+                            <tr><td>Væksttid</td><td>{{ profil.vaekst_dage }} dage</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-auto d-grid gap-1">
+                        <button name="profil_plante1" value="{{ key }}"
+                            class="btn btn-sm {% if key == aktiv_plante1 %}btn-success{% else %}btn-outline-success{% endif %}">
+                            {% if key == aktiv_plante1 %}Aktiv til Plante 1{% else %}Vælg til Plante 1{% endif %}
+                        </button>
+                        <button name="profil_plante2" value="{{ key }}"
+                            class="btn btn-sm {% if key == aktiv_plante2 %}btn-info{% else %}btn-outline-info{% endif %}">
+                            {% if key == aktiv_plante2 %}Aktiv til Plante 2{% else %}Vælg til Plante 2{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</form>
+{% endblock %}

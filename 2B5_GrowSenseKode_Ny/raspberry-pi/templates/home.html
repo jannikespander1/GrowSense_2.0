@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+{% block title %}Oversigt{% endblock %}
+
+{% block content %}
+<h2>Dashboard</h2>
+<p class="text-muted">
+    Plante 1: <strong>{{ profil1.navn }}</strong> &nbsp;|&nbsp; Plante 2: <strong>{{ profil2.navn }}</strong>
+    &mdash; sidst opdateret: <span id="ts-val">{{ data.timestamp }}</span>
+    <span class="badge bg-secondary ms-2">Live</span>
+</p>
+
+<div class="row g-3">
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="card-title text-muted">Jordfugtighed &ndash; Plante 1 ({{ profil1.navn }})</div>
+                <div class="sensor-value" id="soil1-val">{{ data.soil1 }}%</div>
+                <span class="badge" id="soil1-badge">&nbsp;</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="card-title text-muted">Jordfugtighed &ndash; Plante 2 ({{ profil2.navn }})</div>
+                <div class="sensor-value" id="soil2-val">{{ data.soil2 }}%</div>
+                <span class="badge" id="soil2-badge">&nbsp;</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="card-title text-muted">Sollys</div>
+                <div class="sensor-value" id="light-val">{{ data.light }}%</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="card-title text-muted">Vand pumpe</div>
+                <div class="sensor-value" id="pumpe-val">{{ data.pumpe }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="card-title text-muted">Vandstand</div>
+                <div class="sensor-value" id="vandstand-val">{{ data.vandstand }}</div>
+                <span class="badge" id="vandstand-badge">&nbsp;</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <h5 class="card-title">Hurtig styring</h5>
+        <form method="POST" action="{{ url_for('styring') }}" class="d-inline">
+            {% if data.pumpe == "TIL" %}
+                <button name="handling" value="pumpe_fra" class="btn btn-outline-secondary">Sluk pumpe</button>
+            {% else %}
+                <button name="handling" value="pumpe_til" class="btn btn-primary">Tænd pumpe</button>
+            {% endif %}
+        </form>
+        <a href="{{ url_for('styring') }}" class="btn btn-outline-dark ms-2">Fuld styring</a>
+        <a href="{{ url_for('sensorer') }}" class="btn btn-outline-success ms-2">Se grafer</a>
+    </div>
+</div>
+
+<script>
+    const SOIL_MIN_P1 = {{ profil1.soil_min }};
+    const SOIL_MAX_P1 = {{ profil1.soil_max }};
+    const SOIL_MIN_P2 = {{ profil2.soil_min }};
+    const SOIL_MAX_P2 = {{ profil2.soil_max }};
+
+    function fugtBadge(el, vaerdi, min, max) {
+        if (vaerdi < min) {
+            el.textContent = "For tør";
+            el.className = "badge bg-danger";
+        } else if (vaerdi > max) {
+            el.textContent = "For våd";
+            el.className = "badge bg-warning text-dark";
+        } else {
+            el.textContent = "OK";
+            el.className = "badge bg-success";
+        }
+    }
+
+    function opdater() {
+        fetch("{{ url_for('api_data') }}")
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById("soil1-val").textContent = d.soil1 + "%";
+                document.getElementById("soil2-val").textContent = d.soil2 + "%";
+                document.getElementById("light-val").textContent = d.light + "%";
+                document.getElementById("pumpe-val").textContent = d.pumpe;
+                document.getElementById("vandstand-val").textContent = d.vandstand;
+                document.getElementById("ts-val").textContent = d.timestamp;
+
+                fugtBadge(document.getElementById("soil1-badge"), d.soil1, SOIL_MIN_P1, SOIL_MAX_P1);
+                fugtBadge(document.getElementById("soil2-badge"), d.soil2, SOIL_MIN_P2, SOIL_MAX_P2);
+
+                const vb = document.getElementById("vandstand-badge");
+                if (d.vandstand === "Fyld vand") {
+                    vb.textContent = "Fyld vand"; vb.className = "badge bg-danger";
+                } else {
+                    vb.textContent = "Nok vand"; vb.className = "badge bg-success";
+                }
+            })
+            .catch(() => {});
+    }
+
+    opdater();
+    setInterval(opdater, 2000);
+</script>
+{% endblock %}

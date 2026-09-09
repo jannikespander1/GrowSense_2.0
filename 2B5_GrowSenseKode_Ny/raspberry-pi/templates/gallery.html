@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Billedgalleri{% endblock %}
+
+{% block content %}
+<h2>Billedgalleri</h2>
+<p class="text-muted">Billeder taget automatisk med Pi Camera, sorteret nyest først.</p>
+
+<a href="{{ url_for('kamera') }}" class="btn btn-success mb-3">Tag nyt billede</a>
+
+{% if billeder %}
+    <div class="row">
+        {% for billede in billeder %}
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card">
+                <img src="{{ url_for('static', filename='img/' + billede) }}"
+                    class="card-img-top" alt="{{ billede }}"
+                    style="height:180px; object-fit:cover;">
+                <div class="card-body p-2">
+                    <p class="card-text text-muted small">{{ billede.replace('_', ' ').replace('.jpg', '') }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-secondary">
+        Ingen billeder endnu &ndash; gå til <a href="{{ url_for('kamera') }}">Kamera</a> for at tage det første billede.
+    </div>
+{% endif %}
+{% endblock %}

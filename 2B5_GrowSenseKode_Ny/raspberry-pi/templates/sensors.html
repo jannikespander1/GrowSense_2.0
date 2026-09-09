@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% block title %}Sensorer{% endblock %}
+
+{% block content %}
+<h2>Sensor-monitorering</h2>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="text-muted">Jordfugtighed &ndash; Plante 1</div>
+                <div class="sensor-value" id="soil1-val">{{ data.soil1 }}%</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="text-muted">Jordfugtighed &ndash; Plante 2</div>
+                <div class="sensor-value" id="soil2-val">{{ data.soil2 }}%</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="text-muted">Lysniveau</div>
+                <div class="sensor-value" id="light-val">{{ data.light }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="text-muted">Vandstand</div>
+                <div class="sensor-value" id="vandstand-val">{{ data.vandstand }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if grafer.soil1 %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Jordfugtighed &ndash; Plante 1 over tid (%)</h5>
+            <img id="graf-soil1" src="data:image/png;base64,{{ grafer.soil1 }}" class="img-fluid" alt="Plante 1 graf">
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Jordfugtighed &ndash; Plante 2 over tid (%)</h5>
+            <img id="graf-soil2" src="data:image/png;base64,{{ grafer.soil2 }}" class="img-fluid" alt="Plante 2 graf">
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Sollys over tid (%)</h5>
+            <img id="graf-light" src="data:image/png;base64,{{ grafer.light }}" class="img-fluid" alt="Lysintensitet graf">
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Vandstand over tid</h5>
+            <img id="graf-vandstand" src="data:image/png;base64,{{ grafer.vandstand }}" class="img-fluid" alt="Vandstand graf">
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        Ingen historik endnu &ndash; data gemmes til CSV ved hver måling fra ESP32.
+    </div>
+{% endif %}
+
+<script>
+    function opdaterVaerdier() {
+        fetch("{{ url_for('api_data') }}")
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById("soil1-val").textContent = d.soil1 + "%";
+                document.getElementById("soil2-val").textContent = d.soil2 + "%";
+                document.getElementById("light-val").textContent = d.light;
+                document.getElementById("vandstand-val").textContent = d.vandstand;
+            })
+            .catch(() => {});
+    }
+
+    function opdaterGrafer() {
+        fetch("{{ url_for('api_grafer') }}")
+            .then(r => r.json())
+            .then(g => {
+                if (g.soil1)     document.getElementById("graf-soil1").src     = "data:image/png;base64," + g.soil1;
+                if (g.soil2)     document.getElementById("graf-soil2").src     = "data:image/png;base64," + g.soil2;
+                if (g.light)     document.getElementById("graf-light").src     = "data:image/png;base64," + g.light;
+                if (g.vandstand) document.getElementById("graf-vandstand").src = "data:image/png;base64," + g.vandstand;
+            })
+            .catch(() => {});
+    }
+
+    opdaterVaerdier();
+    opdaterGrafer();
+    setInterval(opdaterVaerdier, 2000);
+    setInterval(opdaterGrafer, 6000);
+</script>
+{% endblock %}

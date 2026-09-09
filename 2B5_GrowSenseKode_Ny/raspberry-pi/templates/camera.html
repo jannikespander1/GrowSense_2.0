@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Kamera{% endblock %}
+
+{% block content %}
+<h2>Kamera og planteanalyse</h2>
+<p class="text-muted">Tag et billede med Pi Camera for at analysere plantens sundhed.</p>
+
+<form method="POST" class="mb-3">
+    <button class="btn btn-success">Tag billede og analyser</button>
+    <a href="{{ url_for('galleri') }}" class="btn btn-outline-secondary ms-2">Se galleri</a>
+</form>
+
+{% if resultat.billede %}
+    <h4>Plante 1</h4>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <img src="{{ url_for('static', filename='img/' + resultat.billede) }}"
+                    class="card-img-top" alt="Plante 1 billede">
+                <div class="card-body">
+                    <p class="card-text text-muted small">Taget: {{ resultat.timestamp }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Analyseresultat</h5>
+
+                    <p>Sundhedsstatus:
+                        {% if "Syg" in resultat.sundhed %}
+                            <span class="badge bg-danger fs-6">{{ resultat.sundhed }}</span>
+                        {% elif "Sund" in resultat.sundhed %}
+                            <span class="badge bg-success fs-6">{{ resultat.sundhed }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6">{{ resultat.sundhed }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if resultat.plante2 and resultat.plante2.billede %}
+    <h4>Plante 2</h4>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <img src="{{ url_for('static', filename='img/' + resultat.plante2.billede) }}"
+                    class="card-img-top" alt="Plante 2 billede">
+                <div class="card-body">
+                    <p class="card-text text-muted small">Taget: {{ resultat.plante2.timestamp }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Analyseresultat</h5>
+
+                    <p>Sundhedsstatus:
+                        {% if "Syg" in resultat.plante2.sundhed %}
+                            <span class="badge bg-danger fs-6">{{ resultat.plante2.sundhed }}</span>
+                        {% elif "Sund" in resultat.plante2.sundhed %}
+                            <span class="badge bg-success fs-6">{{ resultat.plante2.sundhed }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6">{{ resultat.plante2.sundhed }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% else %}
+    <div class="alert alert-secondary">
+        Intet billede endnu &ndash; tryk på "Tag billede og analyser".
+    </div>
+{% endif %}
+{% endblock %}

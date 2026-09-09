@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block title %}Manuel styring{% endblock %}
+
+{% block content %}
+<h2>Manuel styring</h2>
+<p class="text-muted">Her kan du manuelt styre pumpe og vælge LED-lysprofil.</p>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Vandpumpe</h5>
+        <p>Nuværende tilstand:
+            {% if data.pumpe == "TIL" %}
+                <span class="badge bg-primary fs-6">TIL</span>
+            {% else %}
+                <span class="badge bg-secondary fs-6">FRA</span>
+            {% endif %}
+        </p>
+        <form method="POST">
+            {% if data.pumpe == "TIL" %}
+                <button name="handling" value="pumpe_fra" class="btn btn-danger">Sluk pumpe</button>
+            {% else %}
+                <button name="handling" value="pumpe_til" class="btn btn-primary">Tænd pumpe</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">LED-lysprofil</h5>
+        <p>
+            Aktiv profil:
+            {% if data.lysprofil == "seedling" %}
+                <span class="badge bg-info fs-6">Seedling</span>
+            {% else %}
+                <span class="badge bg-info fs-6">Standard</span>
+            {% endif %}
+            &nbsp;|&nbsp; LED-styrke lige nu:
+            <span class="badge bg-success fs-6">{{ data.led }}%</span>
+        </p>
+        <p class="text-muted">
+            LED'en lyser med profilens faste farve, og intensiteten stiger automatisk
+            jo mørkere LDR'en måler. Er der rigeligt lys, slukker LED'en (0&nbsp;%).
+        </p>
+        <form method="POST">
+            <button name="handling" value="lys_seedling"
+                class="btn {% if data.lysprofil == 'seedling' %}btn-success{% else %}btn-outline-success{% endif %}">
+                Seedling
+            </button>
+            <button name="handling" value="lys_standard"
+                class="btn {% if data.lysprofil == 'standard' %}btn-success{% else %}btn-outline-success{% endif %} ms-2">
+                Standard
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Aktuel tilstand</h5>
+        <table class="table table-sm table-bordered" style="max-width:320px">
+            <tbody>
+                <tr><td>Pumpe</td><td>{{ data.pumpe }}</td></tr>
+                <tr><td>Lysprofil</td><td>{{ data.lysprofil | capitalize }}</td></tr>
+                <tr><td>LED-styrke</td><td>{{ data.led }}%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
